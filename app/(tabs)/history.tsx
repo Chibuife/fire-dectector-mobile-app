@@ -9,14 +9,14 @@ export default function AlertHistoryScreen() {
   useEffect(() => {
     const fetchHistory = async () => {
       try {
-        const res = await fetch("http://10.233.195.55:3000/data");
+        const res = await fetch("https://fire-dectector-backend.onrender.com/data");
         const json = await res.json();
 
         const mapped = json.map(item => ({
           alert: item.smoke > 150,
           temperature: item.temperature,
           smoke: item.smoke,
-          time: new Date(item.timestamp).toLocaleString(),
+          time: item.timestamp,
         }));
 
         mapped.sort((a, b) => new Date(b.time) - new Date(a.time));
@@ -47,7 +47,7 @@ export default function AlertHistoryScreen() {
       </Text>
       <Text style={styles.info}>🌡 Temp: {item.temperature}°C</Text>
       <Text style={styles.info}>💨 Smoke: {item.smoke} ppm</Text>
-      <Text style={styles.info}>🕒 {item.time}</Text>
+      <Text style={styles.info}>🕒 {new Date(item.time).toLocaleString()}</Text>
     </View>
   );
 

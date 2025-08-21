@@ -16,7 +16,8 @@
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "package": "com.chibuife.detector"
     },
     "web": {
       "bundler": "metro",
@@ -41,7 +42,7 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "adc3df2d-ad18-45bc-82fb-570c987ce479"
+        "projectId": "6bc219f4-b8d5-4ec9-8a03-c5281fbb8a44"
       }
     }
   }

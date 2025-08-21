@@ -1,6 +1,9 @@
-import React, { useEffect, useState, useRef } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator } from "react-native";
+import * as Notifications from "expo-notifications";
+import React, { useEffect, useRef, useState } from "react";
+import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+
+
 
 export default function HomeScreen() {
   const [loading, setLoading] = useState(true);
@@ -15,9 +18,11 @@ export default function HomeScreen() {
   const ws = useRef<WebSocket | null>(null);
   const deviceId = "ESP32-001"; // ESP32 device ID
 
+
+
   useEffect(() => {
     // Connect to WebSocket backend
-    ws.current = new WebSocket("ws://10.233.195.55:3000"); // Replace with your local backend IP
+    ws.current = new WebSocket("wss://fire-dectector-backend.onrender.com");
 
     ws.current.onopen = () => {
       console.log("WebSocket connected");
@@ -37,7 +42,7 @@ export default function HomeScreen() {
             connected: true,
             temperature: sensorData.temperature,
             smoke: sensorData.smoke,
-            alert: sensorData.smoke > 150, // alert condition
+            alert: sensorData.smoke > 150,
             lastAlert: sensorData.smoke > 150 ? new Date().toLocaleString() : null,
           });
           setLoading(false);
@@ -62,13 +67,13 @@ export default function HomeScreen() {
     };
   }, []);
 
-  if (loading) {
-    return (
-      <View style={styles.center}>
-        <ActivityIndicator size="large" color="#FF3B30" />
-      </View>
-    );
-  }
+  // if (loading) {
+  //   return (
+  //     <View style={styles.center}>
+  //       <ActivityIndicator size="large" color="#FF3B30" />
+  //     </View>
+  //   );
+  // }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -81,8 +86,8 @@ export default function HomeScreen() {
             {data.connected ? "Connected" : "Disconnected"}
           </Text>
         </Text>
-        <Text style={styles.label}>🌡 Temperature: {data.temperature}°C</Text>
-        <Text style={styles.label}>💨 Smoke Level: {data.smoke} ppm</Text>
+        <Text style={styles.label}>🌡 Temperature: {data.temperature|| 0}°C</Text>
+        <Text style={styles.label}>💨 Smoke Level: {data.smoke||0} ppm</Text>
         <Text
           style={[
             styles.label,
