@@ -1,75 +1,164 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
-
-import { HelloWave } from '@/components/HelloWave';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
+import React, { useEffect, useState, useRef } from "react";
+import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function HomeScreen() {
+  const [loading, setLoading] = useState(true);
+  const [data, setData] = useState({
+    connected: false,
+    temperature: 0,
+    smoke: 0,
+    alert: false,
+    lastAlert: null,
+  });
+
+  const ws = useRef<WebSocket | null>(null);
+  const deviceId = "ESP32-001"; // ESP32 device ID
+
+  useEffect(() => {
+    // Connect to WebSocket backend
+    ws.current = new WebSocket("ws://10.233.195.55:3000"); // Replace with your local backend IP
+
+    ws.current.onopen = () => {
+      console.log("WebSocket connected");
+      setData(prev => ({ ...prev, connected: true }));
+
+      // Subscribe to this device
+      ws.current?.send(JSON.stringify({ action: "subscribe", deviceId }));
+    };
+
+    ws.current.onmessage = (event) => {
+      try {
+        const sensorData = JSON.parse(event.data);
+
+        console.log("Received data:", sensorData);
+        if (sensorData.deviceId === deviceId) {
+          setData({
+            connected: true,
+            temperature: sensorData.temperature,
+            smoke: sensorData.smoke,
+            alert: sensorData.smoke > 150, // alert condition
+            lastAlert: sensorData.smoke > 150 ? new Date().toLocaleString() : null,
+          });
+          setLoading(false);
+        }
+      } catch (err) {
+        console.error("Invalid WebSocket message:", err);
+      }
+    };
+
+    ws.current.onclose = () => {
+      console.log("WebSocket disconnected");
+      setData(prev => ({ ...prev, connected: false }));
+    };
+
+    ws.current.onerror = (err) => {
+      console.error("WebSocket error:", err);
+      setData(prev => ({ ...prev, connected: false }));
+    };
+
+    return () => {
+      ws.current?.close();
+    };
+  }, []);
+
+  if (loading) {
+    return (
+      <View style={styles.center}>
+        <ActivityIndicator size="large" color="#FF3B30" />
+      </View>
+    );
+  }
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+    <SafeAreaView style={styles.container}>
+      <Text style={styles.header}>🔥 Fire Monitor</Text>
+
+      <View style={styles.card}>
+        <Text style={styles.label}>
+          Status:{" "}
+          <Text style={{ color: data.connected ? "green" : "red" }}>
+            {data.connected ? "Connected" : "Disconnected"}
+          </Text>
+        </Text>
+        <Text style={styles.label}>🌡 Temperature: {data.temperature}°C</Text>
+        <Text style={styles.label}>💨 Smoke Level: {data.smoke} ppm</Text>
+        <Text
+          style={[
+            styles.label,
+            { color: data.alert ? "red" : "green", fontWeight: "bold" },
+          ]}
+        >
+          {data.alert ? "⚠️ ALERT TRIGGERED" : "✅ Safe"}
+        </Text>
+        {data.lastAlert && (
+          <Text style={styles.subLabel}>Last Alert: {data.lastAlert}</Text>
+        )}
+      </View>
+
+      <View style={styles.actions}>
+        <TouchableOpacity style={styles.button}>
+          <Text style={styles.buttonText}>View History</Text>
+        </TouchableOpacity>
+        {data.alert && (
+          <TouchableOpacity style={[styles.button, styles.muteButton]}>
+            <Text style={styles.buttonText}>Mute Alarm</Text>
+          </TouchableOpacity>
+        )}
+      </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
+  container: {
+    flex: 1,
+    backgroundColor: "#FFF",
+    padding: 20,
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
+  center: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+  header: {
+    fontSize: 28,
+    fontWeight: "bold",
+    color: "#FF3B30",
+    marginBottom: 20,
+  },
+  card: {
+    backgroundColor: "#F9F9F9",
+    borderRadius: 12,
+    padding: 20,
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+    elevation: 3,
+  },
+  label: {
+    fontSize: 18,
+    marginBottom: 5,
+  },
+  subLabel: {
+    fontSize: 14,
+    color: "#777",
+  },
+  actions: {
+    flexDirection: "row",
+    marginTop: 20,
+  },
+  button: {
+    backgroundColor: "#FF3B30",
+    padding: 12,
+    borderRadius: 8,
+    marginRight: 10,
+  },
+  muteButton: {
+    backgroundColor: "#FFA500",
+  },
+  buttonText: {
+    color: "#FFF",
+    fontWeight: "bold",
   },
 });
