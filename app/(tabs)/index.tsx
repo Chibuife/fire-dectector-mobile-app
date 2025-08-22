@@ -1,6 +1,6 @@
 import * as Notifications from "expo-notifications";
 import React, { useEffect, useRef, useState } from "react";
-import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 
@@ -17,7 +17,28 @@ export default function HomeScreen() {
 
   const ws = useRef<WebSocket | null>(null);
   const deviceId = "ESP32-001"; // ESP32 device ID
+  useEffect(() => {
+    (async () => {
+      const { status } = await Notifications.requestPermissionsAsync();
+      if (status !== "granted") {
+        alert("Permission for notifications not granted!");
+        return;
+      }
 
+      const tokenData = await Notifications.getExpoPushTokenAsync({
+        projectId: "6bc219f4-b8d5-4ec9-8a03-c5281fbb8a44",
+      });
+      console.log("Push token:", tokenData.data);
+      const token = tokenData.data;
+
+      // Send token to backend
+      await fetch("https://fire-dectector-backend.onrender.com/register-token", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ deviceId: "ESP32-001", token }),
+      });
+    })();
+  }, []);
 
 
   useEffect(() => {
@@ -86,8 +107,8 @@ export default function HomeScreen() {
             {data.connected ? "Connected" : "Disconnected"}
           </Text>
         </Text>
-        <Text style={styles.label}>🌡 Temperature: {data.temperature|| 0}°C</Text>
-        <Text style={styles.label}>💨 Smoke Level: {data.smoke||0} ppm</Text>
+        <Text style={styles.label}>🌡 Temperature: {data.temperature || 0}°C</Text>
+        <Text style={styles.label}>💨 Smoke Level: {data.smoke || 0} ppm</Text>
         <Text
           style={[
             styles.label,

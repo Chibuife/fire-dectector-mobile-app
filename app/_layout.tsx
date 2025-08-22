@@ -25,27 +25,7 @@ Notifications.scheduleNotificationAsync({
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
-  useEffect(() => {
-    (async () => {
-      const { status } = await Notifications.requestPermissionsAsync();
-      if (status !== "granted") {
-        alert("Permission for notifications not granted!");
-        return;
-      }
 
-      const tokenData = await Notifications.getExpoPushTokenAsync({
-        projectId: "6bc219f4-b8d5-4ec9-8a03-c5281fbb8a44",
-      });
-      const token = tokenData.data;
-
-      // Send token to backend
-      await fetch("https://fire-dectector-backend.onrender.com/register-token", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ deviceId: "ESP32-001", token }),
-      });
-    })();
-  }, []);
 
   return (
     <SafeAreaProvider>
