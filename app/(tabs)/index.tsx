@@ -28,7 +28,7 @@ export default function HomeScreen() {
       const tokenData = await Notifications.getExpoPushTokenAsync({
         projectId: "6bc219f4-b8d5-4ec9-8a03-c5281fbb8a44",
       });
-      console.log("Push token:", tokenData.data);
+      alert(`Push token: ${tokenData.data}`);
       const token = tokenData.data;
 
       // Send token to backend
