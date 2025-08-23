@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "907978812027",
+    "project_id": "detector-bed35",
+    "storage_bucket": "detector-bed35.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:907978812027:android:8ec0521535b306796d10de",
+        "android_client_info": {
+          "package_name": "com.chibuife.detector"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC-d5Ytohcppz6KWGp4uD3m-LP6ZsGyOYo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

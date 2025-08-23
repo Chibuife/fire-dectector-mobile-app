@@ -7,25 +7,19 @@ import React, { useEffect } from "react";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
 
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowAlert: true,
-    shouldPlaySound: true,
-    shouldSetBadge: false,
-  }),
-});
 
-Notifications.scheduleNotificationAsync({
-  content: {
-    title: "Test Alert",
-    body: "This works on emulator 6",
-  },
-  trigger: { seconds: 2 },
-});
+
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
 
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: true,
+    shouldSetBadge: true,
+  }),
+});
 
   return (
     <SafeAreaProvider>

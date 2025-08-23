@@ -1,7 +1,26 @@
-import * as Notifications from "expo-notifications";
 import React, { useEffect, useRef, useState } from "react";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Alert, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import * as Notifications from "expo-notifications";
+import { Platform } from "react-native";
+
+async function setupAlarmChannel() {
+  if (Platform.OS === "android") {
+    await Notifications.setNotificationChannelAsync("alarm-channel", {
+      name: "Alarm Channel",
+      importance: Notifications.AndroidImportance.MAX,
+      sound: "alarm", 
+      vibrationPattern: [500, 500, 500, 500],
+      lockscreenVisibility: Notifications.AndroidNotificationVisibility.PUBLIC,
+      audioAttributes: {
+        usage: Notifications.AndroidAudioUsage.ALARM,
+        contentType: Notifications.AndroidAudioContentType.SONIFICATION,
+      }
+    });
+  }
+}
+
+setupAlarmChannel();
 
 
 
@@ -20,15 +39,16 @@ export default function HomeScreen() {
   useEffect(() => {
     (async () => {
       const { status } = await Notifications.requestPermissionsAsync();
+    Alert.alert("Push Token", status);
       if (status !== "granted") {
-        alert("Permission for notifications not granted!");
+        Alert.alert("Permission for notifications not granted!");
         return;
       }
 
       const tokenData = await Notifications.getExpoPushTokenAsync({
         projectId: "6bc219f4-b8d5-4ec9-8a03-c5281fbb8a44",
       });
-      alert(`Push token: ${tokenData.data}`);
+    Alert.alert("Push Token", tokenData.data);
       const token = tokenData.data;
 
       // Send token to backend

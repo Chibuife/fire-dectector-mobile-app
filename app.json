@@ -2,7 +2,6 @@
   "expo": {
     "name": "detector",
     "slug": "detector",
-    "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "detector",
@@ -12,12 +11,20 @@
       "supportsTablet": true
     },
     "android": {
+      "sound": true,
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.chibuife.detector"
+      "package": "com.chibuife.detector",
+      "googleServicesFile": "./google-services.json",
+      "customNotificationSounds": [
+        {
+          "name": "alarm",
+          "file": "./assets/sounds/alarm.mp3"
+        }
+      ]
     },
     "web": {
       "bundler": "metro",
@@ -44,6 +51,14 @@
       "eas": {
         "projectId": "6bc219f4-b8d5-4ec9-8a03-c5281fbb8a44"
       }
+    },
+    "version": "1.0.1",
+    "runtimeVersion": "1.0.1",
+    "updates": {
+      "enabled": true,
+      "checkAutomatically": "ON_LOAD",
+      "fallbackToCacheTimeout": 0,
+      "url": "https://u.expo.dev/6bc219f4-b8d5-4ec9-8a03-c5281fbb8a44"
     }
   }
 }
